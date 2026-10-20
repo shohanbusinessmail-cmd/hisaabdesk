@@ -21,6 +21,9 @@
 
 রিপোজিটরি: <https://github.com/shohanbusinessmail-cmd/hisaabdesk>
 
+**সর্বশেষ ডাউনলোড:** [GitHub Releases](https://github.com/shohanbusinessmail-cmd/hisaabdesk/releases) —
+`v1.0.0` (বর্তমানে debug-key signed development pre-release; সাইনিং নোট নিচে দেখুন)।
+
 ---
 
 ## বৈশিষ্ট্য

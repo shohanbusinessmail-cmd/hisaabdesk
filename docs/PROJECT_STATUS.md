@@ -48,7 +48,8 @@
 | Android Lint | ✅ সফল (`lintDebug`) | CI log |
 | Debug APK | ✅ তৈরি, ১৮,৫৪১,৭৯০ বাইট | CI artifact `hisaabdesk-debug-apk` |
 | Gradle wrapper validation | ✅ সফল | CI log |
-| Release APK (v1.0.0) | নিচে §৬ দেখুন | release workflow |
+| Release APK (v1.0.0) | ✅ প্রকাশিত — `hisaabdesk-1.0.0-debugsigned-dev.apk` (১২,৭৮৩,৯৫০ বাইট)<br>SHA-256 `d5f399600507a9a84a2e89a5ea09db051313768c23de90397c9e01eb82a301e4`<br>**pre-release, debug-key signed** | [রিলিজ পেজ](https://github.com/shohanbusinessmail-cmd/hisaabdesk/releases/tag/v1.0.0), release workflow run 39499806311 |
+| apksigner verify | ✅ সফল (CI ধাপ) | run 39499806311 step 12 |
 | এমুলেটর/ডিভাইস ইনস্টলেশন | ❌ **যাচাই করা হয়নি** — স্যান্ডবক্সে এমুলেটর/ডিভাইস নেই | — |
 
 > নোট: এই স্যান্ডবক্সে ইন্টারনেট শুধু GitHub/npm/PyPI-তে সীমিত; Google Maven
@@ -65,10 +66,12 @@
 
 ## ৫. যাচাই না করা দাবি (স্পষ্টভাবে)
 
-- "সব স্ক্রিন কাজ করে" — শুধু কোড পর্যালোচনা; রানটাইম ক্লিক-থ্রু যাচাই হয়নি।
-- "APK ইনস্টল হয়েছে" — এমুলেটর/ডিভাইস না থাকায় যাচাই হয়নি (যদি না CI artifact
-  থেকে ম্যানুয়ালি ইনস্টল করে জানানো হয়)।
-- "সম্পূর্ণ production-ready" — নয়; নিচের তালিকা দেখুন।
+- "সব স্ক্রিন কাজ করে" — শুধু কম্পাইল + কোড পর্যালোচনা; রানটাইম ক্লিক-থ্রু
+  (প্রতিটি ফর্ম/ফিল্টার) যাচাই করা হয়নি।
+- "APK ইনস্টল হয়েছে এবং চালু হয়েছে" — **যাচাই করা হয়নি** (এমুলেটর/ডিভাইস নেই)।
+- "প্রোডাকশন-সাইন করা রিলিজ" — **নয়**; v1.0.0 debug key দিয়ে সাইন করা pre-release।
+- "সব acceptance criteria পূরণ" — নয়; instrumented UI টেস্ট, ডিভাইস ভেরিফিকেশন
+  ও production signing বাকি।
 
 ## ৬. বাহ্যিক যা প্রয়োজন (এবং কী ব্লকড)
 
