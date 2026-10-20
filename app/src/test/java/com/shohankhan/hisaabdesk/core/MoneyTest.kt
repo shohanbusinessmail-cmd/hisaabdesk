@@ -11,8 +11,8 @@ class MoneyTest {
     @Test
     fun `formats with bengali digits and asian grouping`() {
         assertEquals("৳১,২৫০.০০", Money.format(125000))
-        assertEquals("৳১২,৫০,০০০.০০", Money.format(12_500_000_00))
-        assertEquals("৳১,০০,০০,০০০.০০", Money.format(10_000_000_00))
+        assertEquals("৳১২,৫০,০০০.০০", Money.format(125_000_000))
+        assertEquals("৳১,০০,০০,০০০.০০", Money.format(1_000_000_000))
     }
 
     @Test

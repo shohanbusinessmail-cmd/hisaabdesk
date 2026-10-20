@@ -239,20 +239,18 @@ class PlanningRepository(
     }
 
     fun nextDateAfter(item: RecurringItemEntity, after: LocalDate): LocalDate {
-        var next = Dates.localDateOf(item.startDateMillis)
+        val start = Dates.localDateOf(item.startDateMillis)
         val freq = when (item.frequency) {
             "WEEKLY" -> Dates.Frequency.WEEKLY
             "CUSTOM_DAYS" -> Dates.Frequency.CUSTOM_DAYS
             else -> Dates.Frequency.MONTHLY
         }
-        var guard = 0
-        while (!next.isAfter(after) && guard < 10000) {
-            next = when (freq) {
-                Dates.Frequency.MONTHLY -> Dates.addMonths(next, 1)
-                Dates.Frequency.WEEKLY -> Dates.addWeeks(next, 1)
-                Dates.Frequency.CUSTOM_DAYS -> Dates.addDays(next, item.intervalDays.coerceAtLeast(1).toLong())
-            }
-            guard++
+        val interval = item.intervalDays.coerceAtLeast(1)
+        var n = 1L
+        var next = Dates.nthOccurrence(start, freq, interval, n)
+        while (!next.isAfter(after) && n < 10000) {
+            n++
+            next = Dates.nthOccurrence(start, freq, interval, n)
         }
         if (item.endDateMillis != null && next.isAfter(Dates.localDateOf(item.endDateMillis))) {
             return Dates.localDateOf(item.endDateMillis)

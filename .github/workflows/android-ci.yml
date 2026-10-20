@@ -98,6 +98,17 @@ jobs:
                   if re.match(r"^.+ > .+ FAILED$", ln) and emitted < 60:
                       emitted += 1
                       print(f"::error title=Test failure::{ln.strip()[:250]}")
+          import glob, xml.etree.ElementTree as ET
+          for xml_path in glob.glob("app/build/test-results/testDebugUnitTest/*.xml"):
+              try:
+                  root = ET.parse(xml_path).getroot()
+              except Exception:
+                  continue
+              for case in root.iter("testcase"):
+                  for fail in list(case.iter("failure")) + list(case.iter("error")):
+                      msg = (fail.get("message") or "").replace("\n", " ")[:500]
+                      name = f"{case.get('classname')}.{case.get('name')}"
+                      print(f"::error title=Test: {name}::{msg}")
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as fh:
               fh.write("\n".join(out) + "\n")
           PY

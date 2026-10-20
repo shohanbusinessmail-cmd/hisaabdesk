@@ -53,21 +53,22 @@ object Dates {
 
     fun generateDueDates(start: LocalDate, count: Int, frequency: Frequency, intervalDays: Int = 0): List<LocalDate> {
         require(count in 0..10000) { "invalid count" }
-        val result = ArrayList<LocalDate>(count)
-        var current = start
-        for (i in 0 until count) {
-            result.add(current)
-            current = when (frequency) {
-                Frequency.MONTHLY -> addMonths(current, 1)
-                Frequency.WEEKLY -> addWeeks(current, 1)
-                Frequency.CUSTOM_DAYS -> {
-                    require(intervalDays > 0) { "intervalDays must be > 0" }
-                    addDays(current, intervalDays.toLong())
-                }
+        return (0 until count).map { nthOccurrence(start, frequency, intervalDays, it.toLong()) }
+    }
+
+    /**
+     * The n-th occurrence (0-based) computed FROM THE ANCHOR DATE — not iteratively —
+     * so a Jan 31 monthly schedule gives Mar 31 after Feb 29 instead of drifting to Mar 29.
+     */
+    fun nthOccurrence(start: LocalDate, frequency: Frequency, intervalDays: Int, n: Long): LocalDate =
+        when (frequency) {
+            Frequency.MONTHLY -> addMonths(start, n)
+            Frequency.WEEKLY -> addWeeks(start, n)
+            Frequency.CUSTOM_DAYS -> {
+                require(intervalDays > 0) { "intervalDays must be > 0" }
+                addDays(start, n * intervalDays)
             }
         }
-        return result
-    }
 
     fun startOfWeek(date: LocalDate): LocalDate = date.with(DayOfWeek.MONDAY)
 
