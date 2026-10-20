@@ -1,0 +1,30 @@
+# Gradle
+.gradle/
+build/
+local.properties
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Signing credentials — never commit
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+
+# Logs and temp
+*.log
+tmp/
+.sandbox/
+
+# Python tooling (icon generation venv)
+venv/
+.venv/
+
+# OS
+Thumbs.db

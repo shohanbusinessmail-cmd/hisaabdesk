@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- HisaabDesk launcher icon foreground: a green ledger book with balanced entry lines
+     and a verified-balance badge. Original vector artwork created for this project. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Book cover -->
+    <path
+        android:fillColor="#18794E"
+        android:pathData="M28,22 h40 a8,8 0 0 1 8,8 v42 a8,8 0 0 1 -8,8 h-40 a8,8 0 0 1 -8,-8 v-42 a8,8 0 0 1 8,-8 z" />
+    <!-- Spine -->
+    <path
+        android:fillColor="#125C3B"
+        android:pathData="M28,22 h7 v60 h-7 a8,8 0 0 1 -8,-8 v-42 a8,8 0 0 1 8,-8 z" />
+    <!-- Page -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M41,31 h28 a3,3 0 0 1 3,3 v32 a3,3 0 0 1 -3,3 h-28 a3,3 0 0 1 -3,-3 v-32 a3,3 0 0 1 3,-3 z" />
+    <!-- Ledger entry lines -->
+    <path
+        android:fillColor="#EAF6EE"
+        android:pathData="M46,42 h20 v4 h-20 z" />
+    <path
+        android:fillColor="#EAF6EE"
+        android:pathData="M46,52 h14 v4 h-14 z" />
+    <!-- Balance / verified badge -->
+    <path
+        android:fillColor="#125C3B"
+        android:pathData="M72,70 m-16,0 a16,16 0 1 1 32,0 a16,16 0 1 1 -32,0 z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M64,70.5 l5,5 l11,-11 l-3,-3 l-8,8 l-2,-2 z" />
+</vector>

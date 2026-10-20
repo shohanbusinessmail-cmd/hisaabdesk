@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="brand_green">#18794E</color>
+    <color name="brand_green_dark">#125C3B</color>
+    <color name="brand_green_light">#EAF6EE</color>
+    <color name="app_background">#F7F9F7</color>
+    <color name="surface_white">#FFFFFF</color>
+    <color name="text_primary">#17231C</color>
+    <color name="text_secondary">#65736A</color>
+    <color name="border_soft">#E1E8E2</color>
+    <color name="error_red">#BA3030</color>
+    <color name="warning_amber">#98620B</color>
+    <color name="ic_launcher_background">#EAF6EE</color>
+</resources>
