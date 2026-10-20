@@ -159,11 +159,13 @@ fun CategoryFormScreen(id: Long, onBack: () -> Unit, onSaved: () -> Unit) {
     var parent by remember { mutableStateOf<Long?>(null) }
     var prefilled by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var existingCat by remember { mutableStateOf<CategoryEntity?>(null) }
     val categories by vm.categories.collectAsState()
 
     LaunchedEffect(id) {
         if (id != 0L && !prefilled) {
             val cat = vm.get(id)
+            existingCat = cat
             if (cat != null) {
                 prefilled = true
                 name = cat.name
@@ -216,7 +218,7 @@ fun CategoryFormScreen(id: Long, onBack: () -> Unit, onSaved: () -> Unit) {
                 } else {
                     error = null
                     val now = System.currentTimeMillis()
-                    val existing = if (id != 0L) vm.get(id) else null
+                    val existing = existingCat
                     vm.save(
                         (existing ?: CategoryEntity(name = name.trim(), kind = kind, createdAt = now, updatedAt = now)).copy(
                             name = name.trim(),

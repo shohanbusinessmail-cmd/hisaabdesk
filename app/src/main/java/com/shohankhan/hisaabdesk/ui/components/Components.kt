@@ -304,6 +304,7 @@ fun MoneyField(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateField(
     label: String,
