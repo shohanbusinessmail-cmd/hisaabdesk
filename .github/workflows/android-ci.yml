@@ -66,21 +66,41 @@ jobs:
           set -o pipefail
           ./gradlew --no-daemon :app:assembleDebug 2>&1 | tee assemble.log
 
-      - name: Publish diagnostics to job summary
+      - name: Publish diagnostics (annotations + summary)
         if: failure() || cancelled()
         run: |
-          {
-            echo "## Build diagnostics (auto-generated)"
-            for f in compile.log test.log lint.log assemble.log; do
-              if [ -f "$f" ]; then
-                echo ""
-                echo "### $f — key lines"
-                echo '```'
-                grep -E "^e: |^w: .*error|error:|Execution failed|What went wrong|Caused by|FAILED|failed" "$f" | head -n 120 || true
-                echo '```'
-              fi
-            done
-          } >> "$GITHUB_STEP_SUMMARY"
+          python3 - <<'PY'
+          import re, os
+          out = []
+          out.append("## Build diagnostics")
+          emitted = 0
+          for fname in ["compile.log", "test.log", "lint.log", "assemble.log"]:
+              if not os.path.exists(fname):
+                  continue
+              text = open(fname, errors="ignore").read().splitlines()
+              out.append("")
+              out.append(f"### {fname}")
+              out.append("```")
+              key = [l for l in text if re.search(r"^e: |error:|Execution failed|What went wrong|Caused by|FAILED|FAILURE:", l)]
+              for l in key[-120:]:
+                  out.append(l[:400])
+              out.append("```")
+              for ln in text:
+                  m = re.match(r"^e: file://(?P<path>[^:]+):(?P<line>\d+):(?P<col>\d+) (?P<msg>.*)$", ln)
+                  if m and emitted < 45:
+                      emitted += 1
+                      parts = m.group("path").split("/")
+                      rel = "/".join(parts[parts.index("app"):]) if "app" in parts else m.group("path")
+                      msg = " ".join(m.group("msg").split())[:250].replace("%", "%25").replace("\n", " ")
+                      print(f"::error file={rel},line={m.group('line')},col={m.group('col')},title=Kotlin::{msg}")
+              # test failures as errors
+              for ln in text:
+                  if re.match(r"^.+ > .+ FAILED$", ln) and emitted < 60:
+                      emitted += 1
+                      print(f"::error title=Test failure::{ln.strip()[:250]}")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as fh:
+              fh.write("\n".join(out) + "\n")
+          PY
 
       - name: Upload debug APK
         if: success()
