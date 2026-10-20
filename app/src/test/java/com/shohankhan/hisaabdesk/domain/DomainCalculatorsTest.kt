@@ -111,7 +111,7 @@ class LoanCalculatorTest {
         assertEquals(134_400L, schedule.sumOf { it.scheduledPaisa })
         assertEquals(14_400L, schedule.sumOf { it.interestPaisa })
         // per-installment proportional rounding may drift by at most 1 paisa per row
-        assertEquals(120_000L, schedule.sumOf { it.principalPaisa }.toDouble(), 12.0)
+        assertEquals(120_000.0, schedule.sumOf { it.principalPaisa }.toDouble(), 12.0)
     }
 
     @Test
