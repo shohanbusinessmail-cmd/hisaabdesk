@@ -121,8 +121,15 @@ class TransactionRepository(
     }
 
     /**
-     * Reversal: inserts a compensating txn and marks the original REVERSED.
-     * Both rows remain in the ledger for audit — nothing silently disappears.
+     * Reversal (explicit cancellation):
+     *  - the original row is kept for the audit trail and marked REVERSED, which removes
+     *    its accounting effect from every balance/report (balances are ledger-derived),
+     *  - a structured audit entry records who reversed what and when,
+     *  - nothing is silently deleted.
+     *
+     * We deliberately do NOT add a compensating inflow/outflow row: the original is
+     * already excluded from the ledger once REVERSED, and adding an opposite entry
+     * would double-count the correction.
      */
     suspend fun reverse(originalId: Long, reason: String = "") = db.withTransaction {
         val original = txnDao.getById(originalId)
@@ -134,35 +141,14 @@ class TransactionRepository(
             throw ValidationException("এটি নিজেই একটি বাতিলকরণ রেকর্ড")
         }
         val now = System.currentTimeMillis()
-        val compensating = original.copy(
-            id = 0,
-            flow = when (original.flow) {
-                TxnFlow.INFLOW -> TxnFlow.OUTFLOW
-                TxnFlow.OUTFLOW -> TxnFlow.INFLOW
-                TxnFlow.TRANSFER -> TxnFlow.TRANSFER
-            },
-            // For transfers the direction swap is handled by swapping the accounts.
-            accountId = original.counterAccountId ?: original.accountId,
-            counterAccountId = if (original.flow == TxnFlow.TRANSFER) original.accountId else original.counterAccountId,
-            dateMillis = Dates.todayMillis(),
-            dayKey = Dates.dayKey(System.currentTimeMillis()),
-            description = "বাতিলকরণ: ${original.description}",
-            note = reason,
-            status = TxnStatus.ACTIVE,
-            reversalOfId = original.id,
-            idempotencyKey = null,
-            createdAt = now,
-            updatedAt = now
-        )
-        txnDao.insert(compensating)
         txnDao.update(original.copy(status = TxnStatus.REVERSED, updatedAt = now))
         auditDao.insert(
             AuditEntryEntity(
                 entityType = "txn",
                 entityId = original.id,
                 action = "reverse",
-                beforeJson = "{\"status\":\"ACTIVE\"}",
-                afterJson = "{\"status\":\"REVERSED\"}",
+                beforeJson = "{\"status\":\"ACTIVE\",\"amount\":${original.amountPaisa},\"flow\":\"${original.flow}\"}",
+                afterJson = "{\"status\":\"REVERSED\",\"reason\":\"${reason.replace("\"", "'")}\"}",
                 atMillis = now
             )
         )

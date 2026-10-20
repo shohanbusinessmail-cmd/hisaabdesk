@@ -17,10 +17,16 @@ import javax.crypto.spec.GCMParameterSpec
  */
 class KeystoreBox(private val alias: String = DEFAULT_ALIAS) {
 
-    private val keyStore: KeyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+    // Lazily resolved: the AndroidKeyStore provider does not exist on the JVM
+    // (unit tests) or on some unusual devices. Absence must degrade gracefully,
+    // never crash the app or the PIN screen.
+    private val keyStore: KeyStore? = runCatching {
+        KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+    }.getOrNull()
 
     private fun getOrCreateKey(): SecretKey {
-        (keyStore.getEntry(alias, null) as? KeyStore.SecretKeyEntry)?.let { return it.secretKey }
+        val ks = keyStore ?: throw IllegalStateException("AndroidKeyStore unavailable")
+        (ks.getEntry(alias, null) as? KeyStore.SecretKeyEntry)?.let { return it.secretKey }
         val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
         val spec = KeyGenParameterSpec.Builder(
             alias,

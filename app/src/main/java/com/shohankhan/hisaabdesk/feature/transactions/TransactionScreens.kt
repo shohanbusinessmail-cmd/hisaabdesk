@@ -260,7 +260,7 @@ fun TransactionDetailScreen(id: Long, onBack: () -> Unit, onEdit: (Long) -> Unit
     if (showReverse) {
         ConfirmDialog(
             title = "লেনদেন বাতিল করবেন?",
-            body = "একটি বিপরীত লেনদেন তৈরি হবে এবং মূল লেনদেনের হিসাব প্রভাব উল্টে যাবে। মূল রেকর্ড ইতিহাসে থেকে যাবে।",
+            body = "লেনদেনটি বাতিল হিসেবে চিহ্নিত হবে এবং এর হিসাব প্রভাব সব রিপোর্ট থেকে সরে যাবে। মূল রেকর্ডটি ইতিহাসে অটুট থাকবে (মুছে যাবে না)।",
             onConfirm = { vm.reverse(id, "ব্যবহারকারী বাতিল করেছেন") },
             onDismiss = { showReverse = false }
         )

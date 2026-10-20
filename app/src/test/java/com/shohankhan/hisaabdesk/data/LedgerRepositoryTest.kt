@@ -159,16 +159,26 @@ class LedgerRepositoryTest {
     }
 
     @Test
-    fun `reversal creates compensating entry and marks original reversed`() = runBlocking {
+    fun `reversal removes the ledger effect but keeps the record for audit`() = runBlocking {
         val acc = createAccount("নগদ", opening = 100_000)
         val id = txns.insert(txn(TxnType.EXPENSE, TxnFlow.OUTFLOW, 30_000, acc))
         assertEquals(70_000L, accounts.balanceOf(acc))
         txns.reverse(id)
         assertEquals(100_000L, accounts.balanceOf(acc))
-        assertEquals(TxnStatus.REVERSED, db.txnDao().getById(id)!!.status)
-        val all = db.txnDao().observeFiltered(null, null, null, null, null, null, null, null, null, null, 50, 0).first()
-        assertEquals(2, all.size)
-        assertTrue(all.any { it.reversalOfId == id })
+        val stored = db.txnDao().getById(id)!!
+        assertEquals(TxnStatus.REVERSED, stored.status)
+        assertEquals(30_000L, stored.amountPaisa) // record preserved, not deleted
+        assertEquals(0L, db.txnDao().expenseBetween(todayKey, todayKey))
+        val audit = db.auditDao().observeFor("txn", id).first()
+        assertTrue(audit.any { it.action == "reverse" })
+        // reversing twice is rejected
+        var threw = false
+        try {
+            txns.reverse(id)
+        } catch (e: TransactionRepository.ValidationException) {
+            threw = true
+        }
+        assertTrue(threw)
     }
 
     @Test
