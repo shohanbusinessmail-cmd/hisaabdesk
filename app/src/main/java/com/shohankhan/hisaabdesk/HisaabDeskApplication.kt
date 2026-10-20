@@ -16,7 +16,9 @@ class HisaabDeskApplication : Application() {
         super.onCreate()
         container = AppContainer(this)
         createNotificationChannels()
-        ReminderScheduler.schedulePeriodic(this)
+        // Scheduling must never crash app startup (e.g. WorkManager not yet initialized
+        // in unit tests or unusual process states). Reminders resume on next real launch.
+        runCatching { ReminderScheduler.schedulePeriodic(this) }
     }
 
     private fun createNotificationChannels() {

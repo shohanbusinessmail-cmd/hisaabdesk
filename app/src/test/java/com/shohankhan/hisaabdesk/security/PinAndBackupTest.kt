@@ -23,7 +23,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [34], application = android.app.Application::class)
 class PinManagerTest {
 
     private lateinit var pinManager: PinManager
@@ -109,7 +109,7 @@ class PinManagerTest {
 }
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [34], application = android.app.Application::class)
 class BackupSerializerTest {
 
     private val now = 1_700_000_000_000L

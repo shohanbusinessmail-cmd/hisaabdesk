@@ -94,11 +94,9 @@ jobs:
                       msg = " ".join(m.group("msg").split())[:250].replace("%", "%25").replace("\n", " ")
                       print(f"::error file={rel},line={m.group('line')},col={m.group('col')},title=Kotlin::{msg}")
               # test failures as errors
-              for ln in text:
-                  if re.match(r"^.+ > .+ FAILED$", ln) and emitted < 60:
-                      emitted += 1
-                      print(f"::error title=Test failure::{ln.strip()[:250]}")
+              pass
           import glob, xml.etree.ElementTree as ET
+          details = []
           for xml_path in glob.glob("app/build/test-results/testDebugUnitTest/*.xml"):
               try:
                   root = ET.parse(xml_path).getroot()
@@ -106,9 +104,12 @@ jobs:
                   continue
               for case in root.iter("testcase"):
                   for fail in list(case.iter("failure")) + list(case.iter("error")):
-                      msg = (fail.get("message") or "").replace("\n", " ")[:500]
-                      name = f"{case.get('classname')}.{case.get('name')}"
-                      print(f"::error title=Test: {name}::{msg}")
+                      msg = " ".join((fail.get("message") or fail.text or "").split())
+                      name = f"{case.get('classname')}".split(".")[-1] + "." + (case.get("name") or "")
+                      details.append(f"{name}: {msg[:400]}")
+          if details:
+              blob = " || ".join(details)[:18000].replace("%", "%25").replace("\n", " ")
+              print(f"::error title=Test failure details ({len(details)})::{blob}")
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as fh:
               fh.write("\n".join(out) + "\n")
           PY

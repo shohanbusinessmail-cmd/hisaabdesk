@@ -40,7 +40,7 @@ import org.robolectric.annotation.Config
 import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [34], application = android.app.Application::class)
 class LedgerRepositoryTest {
 
     private lateinit var db: HisaabDatabase
