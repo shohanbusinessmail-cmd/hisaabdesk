@@ -24,6 +24,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # workflow_dispatch must build the *tagged* source, never main HEAD.
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
 
       - name: Validate version tag
         env:
@@ -110,22 +112,33 @@ jobs:
           APK=$(ls app/build/outputs/apk/release/*.apk | grep -v unsigned | head -n 1)
           echo "APK=$APK" >> "$GITHUB_ENV"
           echo "apk_path=$APK" >> "$GITHUB_OUTPUT"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging "$APK" > badging.txt || true
-          head -n 5 badging.txt
-          if grep -q "package: name='com.shohankhan.hisaabdesk'" badging.txt; then
-            echo "Package id verified: com.shohankhan.hisaabdesk"
-          else
-            echo "::warning::Could not verify package id from aapt2 output."
+          "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging "$APK" > badging.txt
+          PACKAGE_LINE=$(grep -m1 "^package: name=" badging.txt || true)
+          echo "badging: $PACKAGE_LINE"
+          echo "::notice title=APK manifest::$PACKAGE_LINE"
+          if ! echo "$PACKAGE_LINE" | grep -q "name='com.shohankhan.hisaabdesk'"; then
+            echo "::error::APK package id is not com.shohankhan.hisaabdesk"
+            exit 1
           fi
+          if ! echo "$PACKAGE_LINE" | grep -q "versionName='${VERSION}'"; then
+            echo "::error::APK versionName does not match tag ${VERSION}"
+            exit 1
+          fi
+          echo "Package id and version verified." 
 
       - name: Verify APK signature
         run: |
           set -eu
           BT="$ANDROID_HOME/build-tools/35.0.0"
-          if "$BT/apksigner" verify --verbose "$APK"; then
+          if "$BT/apksigner" verify --verbose --print-certs "$APK" > signature.txt 2>&1; then
             echo "signature_verified=true" >> "$GITHUB_ENV"
+            grep -m1 "Signer #1 certificate DN:" signature.txt || true
+            CERT_DN=$(grep -m1 "Signer #1 certificate DN:" signature.txt | sed 's/^.*DN: //' || true)
+            echo "::notice title=APK signer::${CERT_DN}"
+            grep -m1 "Signer #1 certificate SHA-256 digest:" signature.txt || true
           else
             echo "::error::APK signature verification failed"
+            cat signature.txt || true
             exit 1
           fi
 
@@ -168,6 +181,7 @@ jobs:
             echo "- Application ID: \`com.shohankhan.hisaabdesk\`"
             echo "- সংস্করণ: \`${VERSION}\` (versionCode $(grep -oP 'versionCode = \K[0-9]+' app/build.gradle.kts))"
             echo "- ন্যূনতম Android: 8.0 (API 26)"
+            echo "- সাইনিং স্থিতি: $( [ "${SIGNED:-}" = "true" ] && echo 'প্রোডাকশন রিলিজ কী' || echo 'ডিবাগ কী (ডেভেলপমেন্ট বিল্ড)' )"
             if [ "${SIGNED:-}" = "true" ]; then
               echo "- সাইনিং: release keystore দিয়ে সাইন করা"
             else
