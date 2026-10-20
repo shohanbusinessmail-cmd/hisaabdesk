@@ -21,8 +21,15 @@
 
 রিপোজিটরি: <https://github.com/shohanbusinessmail-cmd/hisaabdesk>
 
-**সর্বশেষ ডাউনলোড:** [GitHub Releases](https://github.com/shohanbusinessmail-cmd/hisaabdesk/releases) —
-`v1.0.0` (বর্তমানে debug-key signed development pre-release; সাইনিং নোট নিচে দেখুন)।
+**সর্বশেষ ডাউনলোড:** [v1.0.1 Pre-release](https://github.com/shohanbusinessmail-cmd/hisaabdesk/releases/tag/v1.0.1) —
+`hisaabdesk-1.0.1-debugsigned-dev.apk` (১২,৭৮৩,৯৫৮ বাইট,
+SHA-256 `8c62de89bfb574e7a40888c424b498a8bef48a2149257b160d77fab6d1eb68bd`)।
+বর্তমানে debug-key signed development build; সাইনিং নোট নিচে।
+
+CI-যাচাইকৃত APK তথ্য (notice হিসেবে প্রকাশিত):
+`package: name='com.shohankhan.hisaabdesk' versionCode='2' versionName='1.0.1'`,
+signer `C=US, O=Android, CN=Android Debug` — অর্থাৎ APK ইনস্টলযোগ্য কিন্তু
+প্রোডাকশন কী দিয়ে সাইন করা নয়।
 
 ---
 

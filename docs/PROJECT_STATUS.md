@@ -48,8 +48,11 @@
 | Android Lint | ✅ সফল (`lintDebug`) | CI log |
 | Debug APK | ✅ তৈরি, ১৮,৫৪১,৭৯০ বাইট | CI artifact `hisaabdesk-debug-apk` |
 | Gradle wrapper validation | ✅ সফল | CI log |
-| Release APK (v1.0.0) | ✅ প্রকাশিত — `hisaabdesk-1.0.0-debugsigned-dev.apk` (১২,৭৮৩,৯৫০ বাইট)<br>SHA-256 `d5f399600507a9a84a2e89a5ea09db051313768c23de90397c9e01eb82a301e4`<br>**pre-release, debug-key signed** | [রিলিজ পেজ](https://github.com/shohanbusinessmail-cmd/hisaabdesk/releases/tag/v1.0.0), release workflow run 39499806311 |
-| apksigner verify | ✅ সফল (CI ধাপ) | run 39499806311 step 12 |
+| Release APK (v1.0.1) | ✅ প্রকাশিত — `hisaabdesk-1.0.1-debugsigned-dev.apk` (১২,৭৮৩,৯৫৮ বাইট)<br>SHA-256 `8c62de89bfb574e7a40888c424b498a8bef48a2149257b160d77fab6d1eb68bd`<br>**pre-release, debug-key signed** | [রিলিজ পেজ](https://github.com/shohanbusinessmail-cmd/hisaabdesk/releases/tag/v1.0.1) |
+| APK manifest (CI notice) | `package: name='com.shohankhan.hisaabdesk' versionCode='2' versionName='1.0.1' compileSdkVersion='35'` | check-run notice (release run 39502447696) |
+| APK signer (CI notice) | `C=US, O=Android, CN=Android Debug` → debug key, প্রোডাকশন নয় | check-run notice |
+| apksigner verify | ✅ সফল | release run 39502447696 |
+| v1.0.0 release | ✅ প্রকাশিত (pre-release) `hisaabdesk-1.0.0-debugsigned-dev.apk`, SHA-256 `d5f3996…a301e4` | রিলিজ পেজ |
 | এমুলেটর/ডিভাইস ইনস্টলেশন | ❌ **যাচাই করা হয়নি** — স্যান্ডবক্সে এমুলেটর/ডিভাইস নেই | — |
 
 > নোট: এই স্যান্ডবক্সে ইন্টারনেট শুধু GitHub/npm/PyPI-তে সীমিত; Google Maven
@@ -86,8 +89,10 @@
 
 ## ৭. পরবর্তী ধাপ
 
-1. CI green করা (compile → test → lint → APK)।
-2. signing secrets কনফিগার → `v1.0.0` tag → release workflow → APK যাচাই।
-3. রিলিজ পেজে APK + SHA-256 প্রকাশ; README-তে লিংক হালনাগাদ।
-4. সংযুক্তি UI সম্পূর্ণ করা ও SavedStateHandle যোগ করা (পরবর্তী সংস্করণ)।
-5. Instrumented UI টেস্ট (এমুলেটর সহ)।
+1. ✅ CI green (compile → ৭৬ টেস্ট → lint → APK)।
+2. ✅ রিলিজ প্রকাশ (v1.0.0, v1.0.1) — pre-release, debug-key signed, checksum সহ।
+3. ⏳ **সাইনিং secrets যোগ করা** (owner) → পরবর্তী ট্যাগে প্রকৃত সাইন করা APK।
+4. ⏳ ডিভাইস/এমুলেটরে ম্যানুয়াল smoke test (docs/TEST_PLAN.md §৪)।
+5. ⏳ সংযুক্তি (রসিদ) UI সম্পূর্ণ করা, `SavedStateHandle` যোগ, instrumented UI টেস্ট।
+6. ⏳ `app/schemas/` (Room exported schema) — প্রথম লোকাল/CI বিল্ডে উৎপন্ন হয়;
+   পরবর্তী পরিবর্তনে কমিট করতে হবে (বর্তমানে রিপোতে নেই)।
