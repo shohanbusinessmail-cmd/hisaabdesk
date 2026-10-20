@@ -39,15 +39,17 @@
 - **Instrumented UI টেস্ট**: লেখা হয়নি (এমুলেটর প্রয়োজন)।
 - **Migration টেস্ট**: v1-এ এখনো কোনো migration নেই; ভবিষ্যতের জন্য কাঠামো প্রস্তুত।
 
-## ৩. বিল্ড ও টেস্ট ফলাফল
+## ৩. বিল্ড ও টেস্ট ফলাফল (যাচাইকৃত)
 
-| কী | অবস্থা |
-|---|---|
-| GitHub Actions CI (compile/test/lint/APK) | এই সেশনে চালানো হবে — ফলাফল নিচে হালনাগাদ হবে |
-| Unit টেস্ট | CI-তে চলে; স্থানীয় ফলাফল নেই (স্যান্ডবক্সে JDK/Android SDK নেই) |
-| Lint | CI-তে চলে |
-| Release APK | CI release workflow (tag v1.0.0) |
-| এমুলেটর/ডিভাইস ইনস্টলেশন | **যাচাই করা হয়নি** — স্যান্ডবক্সে এমুলেটর নেই |
+| কী | ফলাফল | প্রমাণ |
+|---|---|---|
+| GitHub Actions CI | ✅ সফল (run 39496517444) | compile → unit test → lint → assembleDebug সব ধাপ success |
+| Unit টেস্ট | ✅ **৭৬ টেস্ট পাস, ০ ব্যর্থ** | JUnit XML, CI artifact `unit-test-report` |
+| Android Lint | ✅ সফল (`lintDebug`) | CI log |
+| Debug APK | ✅ তৈরি, ১৮,৫৪১,৭৯০ বাইট | CI artifact `hisaabdesk-debug-apk` |
+| Gradle wrapper validation | ✅ সফল | CI log |
+| Release APK (v1.0.0) | নিচে §৬ দেখুন | release workflow |
+| এমুলেটর/ডিভাইস ইনস্টলেশন | ❌ **যাচাই করা হয়নি** — স্যান্ডবক্সে এমুলেটর/ডিভাইস নেই | — |
 
 > নোট: এই স্যান্ডবক্সে ইন্টারনেট শুধু GitHub/npm/PyPI-তে সীমিত; Google Maven
 > (`dl.google.com`, `maven.google.com`) ব্লকড। তাই **স্থানীয় Gradle build অসম্ভব**;
@@ -68,13 +70,16 @@
   থেকে ম্যানুয়ালি ইনস্টল করে জানানো হয়)।
 - "সম্পূর্ণ production-ready" — নয়; নিচের তালিকা দেখুন।
 
-## ৬. বাহ্যিক যা প্রয়োজন
+## ৬. বাহ্যিক যা প্রয়োজন (এবং কী ব্লকড)
 
-1. GitHub Actions সক্রিয় থাকা (রিপোজিটরি owner)।
-2. রিলিজ সাইনিং secrets (ঐচ্ছিক কিন্তু ইনস্টলযোগ্য APK-এর জন্য কার্যত আবশ্যক):
-   `HISAABDESK_KEYSTORE_BASE64`, `HISAABDESK_KEYSTORE_PASSWORD`,
-   `HISAABDESK_KEY_ALIAS`, `HISAABDESK_KEY_PASSWORD`।
-3. একটি Android ডিভাইস/এমুলেটরে ম্যানুয়াল smoke test (PIN, আয়-ব্যয়, ব্যাকআপ)।
+1. **রিলিজ সাইনিং secrets** — ব্লকড: এজেন্টের GitHub integration টোকেনে repository
+   secrets লেখার অনুমতি নেই (`403 Resource not accessible by integration`)।
+   চারটি secret (নাম docs/RELEASE_PROCESS.md §২.২) owner যোগ করলেই পরবর্তী রান
+   প্রকৃত সাইন করা APK তৈরি করবে। তার আগে release workflow **debug-key signed,
+   স্পষ্টভাবে লেবেল করা pre-release** তৈরি করে — কোনো "production signed" দাবি ছাড়াই।
+2. Android ডিভাইসে ম্যানুয়াল smoke test (docs/TEST_PLAN.md §৪) — এজেন্টের কাছে
+   ডিভাইস নেই, তাই বাকি।
+3. Actions মিনিট/কোটা — পাবলিক রিপোজিটরিতে বিনামূল্যে; কোনো paid CI নেই।
 
 ## ৭. পরবর্তী ধাপ
 

@@ -53,10 +53,12 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = if (signingConfigs.getByName("release").storeFile != null) {
-                signingConfigs.getByName("release")
-            } else {
-                null
+            signingConfig = when {
+                signingConfigs.getByName("release").storeFile != null -> signingConfigs.getByName("release")
+                // Development fallback ONLY: keeps the real applicationId but signs with the
+                // auto-generated debug key. Never used when release signing is configured.
+                project.findProperty("hisaabdeskDebugSigning") == "true" -> signingConfigs.getByName("debug")
+                else -> null
             }
         }
     }

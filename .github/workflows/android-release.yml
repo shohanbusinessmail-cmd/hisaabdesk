@@ -70,10 +70,12 @@ jobs:
             echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
             echo "HISAABDESK_KEYSTORE_FILE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
             echo "signed=true" >> "$GITHUB_OUTPUT"
+            echo "SIGNED=true" >> "$GITHUB_ENV"
             echo "Release signing keystore restored."
           else
             echo "signed=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::No signing secrets configured — the release APK will be UNSIGNED and not installable."
+            echo "SIGNED=false" >> "$GITHUB_ENV"
+            echo "::warning::No signing secrets configured — building a debug-key signed development APK."
           fi
 
       - name: Run unit tests
@@ -85,13 +87,20 @@ jobs:
           HISAABDESK_KEY_ALIAS: ${{ secrets.HISAABDESK_KEY_ALIAS }}
           HISAABDESK_KEY_PASSWORD: ${{ secrets.HISAABDESK_KEY_PASSWORD }}
           HISAABDESK_STORE_TYPE: 'PKCS12'
-        run: ./gradlew --no-daemon :app:assembleRelease
+          SIGNING_AVAILABLE: ${{ env.SIGNED }}
+        run: |
+          if [ "$SIGNING_AVAILABLE" = "true" ]; then
+            ./gradlew --no-daemon :app:assembleRelease
+          else
+            echo "::warning::No release keystore secrets — building a DEBUG-KEY-SIGNED development APK (installable, not a production signature)."
+            ./gradlew --no-daemon :app:assembleRelease -PhisaabdeskDebugSigning=true
+          fi
 
       - name: Locate and verify APK
         id: apk
         run: |
           set -eu
-          APK=$(ls app/build/outputs/apk/release/*.apk | head -n 1)
+          APK=$(ls app/build/outputs/apk/release/*.apk | grep -v unsigned | head -n 1)
           echo "APK=$APK" >> "$GITHUB_ENV"
           echo "apk_path=$APK" >> "$GITHUB_OUTPUT"
           "$ANDROID_HOME/build-tools/35.0.0/aapt2" dump badging "$APK" > badging.txt || true
@@ -118,15 +127,21 @@ jobs:
           set -eu
           sha256sum "$APK" | awk '{print $1}' > checksum.txt
           echo "SHA256=$(cat checksum.txt)" >> "$GITHUB_ENV"
-          cp "$APK" "hisaabdesk-${VERSION}.apk"
-          echo "hisaabdesk-${VERSION}.apk" > apk_name.txt
+          if [ "${SIGNED:-}" = "true" ]; then
+            ASSET="hisaabdesk-${VERSION}.apk"
+          else
+            ASSET="hisaabdesk-${VERSION}-debugsigned-dev.apk"
+          fi
+          cp "$APK" "$ASSET"
+          echo "ASSET=$ASSET" >> "$GITHUB_ENV"
+          echo "$ASSET" > apk_name.txt
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: hisaabdesk-release-${{ env.VERSION }}
           path: |
-            hisaabdesk-${{ env.VERSION }}.apk
+            hisaabdesk-${{ env.VERSION }}*.apk
             checksum.txt
           if-no-files-found: error
 
@@ -139,14 +154,21 @@ jobs:
             echo "অফলাইন-ফার্স্ট বাংলা ব্যক্তিগত অর্থ ও হিসাব ব্যবস্থাপনা অ্যাপ।"
             echo ""
             echo "## ডাউনলোড"
-            echo "- APK: \`hisaabdesk-${VERSION}.apk\`"
+            echo "- APK: \`${ASSET}\`"
             echo "- SHA-256: \`${SHA256}\`"
             echo ""
             echo "## অ্যাপ তথ্য"
             echo "- Application ID: \`com.shohankhan.hisaabdesk\`"
             echo "- সংস্করণ: \`${VERSION}\` (versionCode $(grep -oP 'versionCode = \K[0-9]+' app/build.gradle.kts))"
             echo "- ন্যূনতম Android: 8.0 (API 26)"
-            echo "- সাইনিং: $([ "${signed:-}" = "true" ] && echo 'release keystore দিয়ে সাইন করা' || echo 'UNSIGNED (সাইনিং সিক্রেট কনফিগার করা হয়নি)')"
+            if [ "${SIGNED:-}" = "true" ]; then
+              echo "- সাইনিং: release keystore দিয়ে সাইন করা"
+            else
+              echo ""
+              echo "> ⚠️ **ডেভেলপমেন্ট বিল্ড:** এই APK ডিবাগ কী দিয়ে সাইন করা (প্রোডাকশন নয়)। ইনস্টলযোগ্য,"
+              echo "> তবে ভবিষ্যতে একই অ্যাপে আপডেট করতে একই কী প্রয়োজন। প্রকৃত রিলিজের জন্য রিপোজিটরিতে"
+              echo "> সাইনিং secrets যোগ করে আবার ওয়ার্কফ্লো চালান।"
+            fi
             echo ""
             echo "## ইনস্টলেশন"
             echo "APK ডাউনলোড করে Android ডিভাইসে ইনস্টল করুন। এর আগে তৈরি করা ব্যাকআপ থাকলে নতুন ডিভাইসে রিস্টোর করুন (ব্যাকআপ পাসওয়ার্ড প্রয়োজন)।"
@@ -160,14 +182,20 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -eu
+          PREFLAG=""
+          if [ "${SIGNED:-}" != "true" ]; then
+            PREFLAG="--prerelease"
+            echo "::warning::Publishing as PRE-RELEASE: APK is signed with a debug key, not a production key."
+          fi
           if gh release view "$TAG" > /dev/null 2>&1; then
-            gh release upload "$TAG" "hisaabdesk-${VERSION}.apk" checksum.txt --clobber
-            gh release edit "$TAG" --notes-file RELEASE_NOTES.md
+            gh release upload "$TAG" "$ASSET" checksum.txt --clobber
+            gh release edit "$TAG" --notes-file RELEASE_NOTES.md $PREFLAG
           else
             gh release create "$TAG" \
-              "hisaabdesk-${VERSION}.apk" \
+              "$ASSET" \
               checksum.txt \
               --title "হিসাবডেস্ক ${VERSION}" \
               --notes-file RELEASE_NOTES.md \
-              --verify-tag
+              --verify-tag \
+              $PREFLAG
           fi

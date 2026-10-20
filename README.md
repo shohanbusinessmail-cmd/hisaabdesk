@@ -121,6 +121,11 @@ CI সাইনিং: রিপোজিটরি Secrets-এ
 `HISAABDESK_KEY_ALIAS`, `HISAABDESK_KEY_PASSWORD` যোগ করুন।
 বিস্তারিত: [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md)।
 
+> বর্তমান অবস্থা: এই secrets এখনো যোগ করা হয়নি (এজেন্ট টোকেনে অনুমতি নেই)। তাই
+> v1.0.0 রিলিজে APK **debug key দিয়ে সাইন করা development build** হিসেবে
+> pre-release-এ প্রকাশিত হয় — ইনস্টলযোগ্য, কিন্তু প্রোডাকশন স্বাক্ষর নয়। secrets
+> যোগ করে ওয়ার্কফ্লো আবার চালালে প্রকৃত সাইন করা রিলিজ তৈরি হবে।
+
 ---
 
 ## APK ইনস্টল ও আপডেট
