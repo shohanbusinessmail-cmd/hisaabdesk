@@ -1047,7 +1047,6 @@ fun ReceivableListScreen(onBack: () -> Unit, onAdd: () -> Unit, onOpen: (Long) -
         items = receivables.map {
             ObligationRowData(it.id, vm.contactName(it.contactId), it.amountPaisa, it.dueDateMillis, it.reason, it.dateMillis)
         },
-        paidLabel = "আদায়কৃত",
         digit = digit,
         onOpen = onOpen
     )
@@ -1065,7 +1064,6 @@ fun PayableListScreen(onBack: () -> Unit, onAdd: () -> Unit, onOpen: (Long) -> U
         items = payables.map {
             ObligationRowData(it.id, vm.contactName(it.contactId), it.amountPaisa, it.dueDateMillis, it.reason, it.dateMillis)
         },
-        paidLabel = "পরিশোধকৃত",
         digit = digit,
         onOpen = onOpen
     )
@@ -1086,7 +1084,6 @@ private fun ReceivablePayableList(
     onBack: () -> Unit,
     onAdd: () -> Unit,
     items: List<ObligationRowData>,
-    paidLabel: String,
     digit: Money.DigitStyle,
     onOpen: (Long) -> Unit
 ) {

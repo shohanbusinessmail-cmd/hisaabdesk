@@ -5,12 +5,9 @@ object Routes {
     const val ONBOARDING_WELCOME = "onboarding/welcome"
     const val ONBOARDING_PRIVACY = "onboarding/privacy"
     const val ONBOARDING_PIN = "onboarding/pin"
-    const val ONBOARDING_PIN_CONFIRM = "onboarding/pin_confirm"
     const val ONBOARDING_ACCOUNT = "onboarding/account"
     const val ONBOARDING_CATEGORIES = "onboarding/categories"
     const val ONBOARDING_DONE = "onboarding/done"
-    const val PIN_LOCK = "auth/lock"
-
     const val DASHBOARD = "dashboard"
     const val TRANSACTIONS = "transactions"
     const val TXN_DETAIL = "txn/{id}"
@@ -36,9 +33,7 @@ object Routes {
     fun purchaseDetail(id: Long) = "purchase/$id"
     const val SHOPS = "shops"
     const val SHOP_DETAIL = "shop/{id}"
-    const val SHOP_FORM = "shop/form?id={id}"
     fun shopDetail(id: Long) = "shop/$id"
-    fun shopForm(id: Long = 0) = "shop/form?id=$id"
     const val PURCHASE_PAYMENT = "purchase/{id}/payment"
     fun purchasePayment(id: Long) = "purchase/$id/payment"
 
@@ -105,7 +100,6 @@ object Routes {
     const val CALENDAR = "calendar"
 
     const val REPORTS = "reports"
-    const val REPORT_EXPORT = "reports/export"
 
     const val BACKUP = "backup"
     const val SETTINGS = "settings"

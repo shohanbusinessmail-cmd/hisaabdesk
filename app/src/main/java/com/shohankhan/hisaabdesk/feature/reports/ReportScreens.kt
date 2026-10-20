@@ -152,8 +152,6 @@ class ReportViewModel(private val container: AppContainer) : ViewModel() {
     private val _exportMessage = MutableStateFlow<String?>(null)
     val exportMessage: StateFlow<String?> = _exportMessage.asStateFlow()
 
-    fun clearExportMessage() { _exportMessage.value = null }
-
     suspend fun exportCsv(context: Context, uri: Uri) {
         try {
             val r = Dates.dayKeyRange(_range.value.from, _range.value.to)
