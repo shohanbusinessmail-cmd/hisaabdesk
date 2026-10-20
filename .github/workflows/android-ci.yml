@@ -44,16 +44,43 @@ jobs:
           fi
 
       - name: Compile debug variant
-        run: ./gradlew --no-daemon :app:compileDebugKotlin
+        run: |
+          set -o pipefail
+          ./gradlew --no-daemon :app:compileDebugKotlin 2>&1 | tee compile.log
 
       - name: Run unit tests
-        run: ./gradlew --no-daemon :app:testDebugUnitTest
+        if: success() || failure()
+        run: |
+          set -o pipefail
+          ./gradlew --no-daemon :app:testDebugUnitTest 2>&1 | tee test.log
 
       - name: Run Android lint
-        run: ./gradlew --no-daemon :app:lintDebug
+        if: success() || failure()
+        run: |
+          set -o pipefail
+          ./gradlew --no-daemon :app:lintDebug 2>&1 | tee lint.log
 
       - name: Assemble debug APK
-        run: ./gradlew --no-daemon :app:assembleDebug
+        if: success() || failure()
+        run: |
+          set -o pipefail
+          ./gradlew --no-daemon :app:assembleDebug 2>&1 | tee assemble.log
+
+      - name: Publish diagnostics to job summary
+        if: failure() || cancelled()
+        run: |
+          {
+            echo "## Build diagnostics (auto-generated)"
+            for f in compile.log test.log lint.log assemble.log; do
+              if [ -f "$f" ]; then
+                echo ""
+                echo "### $f — key lines"
+                echo '```'
+                grep -E "^e: |^w: .*error|error:|Execution failed|What went wrong|Caused by|FAILED|failed" "$f" | head -n 120 || true
+                echo '```'
+              fi
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload debug APK
         if: success()
