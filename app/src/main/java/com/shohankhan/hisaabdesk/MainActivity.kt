@@ -166,7 +166,7 @@ private fun AppRoot() {
             }
         )
         security.locked -> PinLockScreen(onUnlocked = { })
-        else -> MainNavHost(onLockNow = { securityVm.lockNow() })
+        else -> MainNavHost()
     }
 }
 
@@ -211,7 +211,7 @@ private fun OnboardingFlow(onFinished: () -> Unit) {
 }
 
 @Composable
-private fun MainNavHost(onLockNow: () -> Unit) {
+private fun MainNavHost() {
     val nav = rememberNavController()
     val backStackEntry by nav.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route

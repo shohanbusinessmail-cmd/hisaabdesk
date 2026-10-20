@@ -158,7 +158,11 @@ object BackupSerializer {
             }
             val out = ArrayList<T>(arr.length())
             for (i in 0 until arr.length()) {
-                val o = arr.optJSONObject(i) ?: run { errors.add("$name[$i] invalid"); continue }
+                val o = arr.optJSONObject(i)
+                if (o == null) {
+                    errors.add("$name[$i] invalid")
+                    continue
+                }
                 try {
                     out.add(parse(o))
                 } catch (e: Exception) {

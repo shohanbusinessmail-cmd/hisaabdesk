@@ -54,9 +54,9 @@ class PinManager(context: Context) {
         val verifier = derive(pin, salt)
         val blob = pack(salt, verifier)
         val stored = try {
-            if (keystoreBox.isAvailable()) FLAG_KEYSTORE + keystoreBox.encrypt(blob) else FLAG_RAW + blob
+            if (keystoreBox.isAvailable()) byteArrayOf(FLAG_KEYSTORE) + keystoreBox.encrypt(blob) else byteArrayOf(FLAG_RAW) + blob
         } catch (e: Exception) {
-            FLAG_RAW + blob
+            byteArrayOf(FLAG_RAW) + blob
         }
         prefs.edit()
             .putString(KEY_VERIFIER, encode(stored))

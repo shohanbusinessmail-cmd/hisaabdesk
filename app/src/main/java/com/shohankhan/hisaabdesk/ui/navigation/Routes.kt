@@ -7,6 +7,7 @@ object Routes {
     const val ONBOARDING_PIN = "onboarding/pin"
     const val ONBOARDING_PIN_CONFIRM = "onboarding/pin_confirm"
     const val ONBOARDING_ACCOUNT = "onboarding/account"
+    const val ONBOARDING_CATEGORIES = "onboarding/categories"
     const val ONBOARDING_DONE = "onboarding/done"
     const val PIN_LOCK = "auth/lock"
 

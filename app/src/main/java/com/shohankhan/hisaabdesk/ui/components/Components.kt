@@ -70,7 +70,7 @@ fun HisaabScaffold(
     onBack: (() -> Unit)? = null,
     actions: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
-    content: @Composable (ColumnScope) -> Unit
+    content: @Composable ColumnScope.() -> Unit
 ) {
     Scaffold(
         topBar = {

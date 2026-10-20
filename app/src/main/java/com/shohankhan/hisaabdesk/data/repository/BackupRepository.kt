@@ -79,7 +79,7 @@ class BackupRepository(
                 db.contactDao().let { dao -> data.contacts.forEach { dao.insert(it) } }
                 db.shopDao().let { dao -> data.shops.forEach { dao.insert(it) } }
                 db.shoppingDao().let { dao -> data.purchases.forEach { dao.insertPurchase(it) } }
-                db.shoppingDao().let { dao -> data.purchaseItems.forEach { items -> dao.insertItems(items) } }
+                db.shoppingDao().insertItems(data.purchaseItems)
                 db.txnDao().insertAll(data.txns)
                 db.lendingDao().let { dao -> data.lendings.forEach { dao.insert(it) } }
                 db.borrowingDao().let { dao -> data.borrowings.forEach { dao.insert(it) } }

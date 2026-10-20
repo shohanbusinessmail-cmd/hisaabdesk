@@ -236,17 +236,6 @@ fun CategoryFormScreen(id: Long, onBack: () -> Unit, onSaved: () -> Unit) {
             OutlinedButton(
                 onClick = {
                     val now = System.currentTimeMillis()
-                    vm.save(
-                        CategoryEntity(name = name, kind = kind, colorArgb = color, parentId = parent, createdAt = now, updatedAt = now)
-                    )
-                },
-                enabled = false,
-                modifier = Modifier.fillMaxWidth()
-            ) { Text("") }
-            Spacer(Modifier.height(8.dp))
-            OutlinedButton(
-                onClick = {
-                    val now = System.currentTimeMillis()
                     val existing = categories.firstOrNull { it.id == id }
                     if (existing != null) vm.setArchived(id, !existing.isArchived)
                     onSaved()
